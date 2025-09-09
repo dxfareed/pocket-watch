@@ -42,7 +42,8 @@ interface TokenData {
 }
 
 export default function RaftPage() {
-  const { setFrameReady, isFrameReady } = useMiniKit();
+  // CHANGED: Get the full context from useMiniKit
+  const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [tokenData, setTokenData] = useState<TokenData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +57,7 @@ export default function RaftPage() {
   const { isConnected } = useAccount();
   const recipientAddress = process.env.NEXT_PUBLIC_TIP_ADDRESS as `0x${string}`;
 
+  const searcherUsername = context?.user?.username;
 
   useEffect(() => {
     if (!isFrameReady) {
@@ -74,14 +76,19 @@ export default function RaftPage() {
     setSearchedUsername(username);
 
     try {
-      const userResponse = await fetch(`/api/user?username=${username}`);
-       if (!userResponse.ok) {
-      if (userResponse.status === 500) {
-        throw new Error("Hit rate limit. Please try again in a moment.");
+      let apiUrl = `/api/user?username=${username}`;
+      if (searcherUsername) {
+        apiUrl += `&searcherUsername=${searcherUsername}`;
       }
+      
+      const userResponse = await fetch(apiUrl);
 
-      throw new Error(`Could not find user '${username}'. Please check the username and try again.`);
-    }
+      if (!userResponse.ok) {
+        if (userResponse.status === 500) {
+          throw new Error("Hit rate limit. Please try again in a moment.");
+        }
+        throw new Error(`Could not find user '${username}'. Please check the username and try again.`);
+      }
       const userData = await userResponse.json();
       const address = userData.user?.verified_addresses?.primary?.eth_address;
 
@@ -91,21 +98,19 @@ export default function RaftPage() {
 
       const balanceResponse = await fetch(`/api/balL2?address=${address}`);
       if (!balanceResponse.ok) {
-        console.log(error)
          if (balanceResponse.status === 500) {
-        throw new Error("Hit rate limit. Please try again in a moment.");
-      }
+            throw new Error("Hit rate limit. Please try again in a moment.");
+         }
         throw new Error(`Failed to fetch token balance: ${balanceResponse.status}`);
       }
       const data = await balanceResponse.json();
-      console.log(data);
       setTokenData(data);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }
-  }, [username]);
+  }, [username, searcherUsername]); 
 
   useEffect(() => {
     if (username) {
@@ -140,9 +145,9 @@ export default function RaftPage() {
     <div className="pt-2">
       {isConnected && recipientAddress && tipTransaction ? (
         <Transaction
-          // @ts-expect-error: tipTransaction is correctly typed
+         // @ts-expect-error: tipTransaction is correctly typed
           calls={tipTransaction}
-          onSuccess={(response: TransactionResponse) => alert(`Tip sent! Tx: ${response.transactionReceipts[0].transactionHash}`)}
+          onSuccess={(response: TransactionResponse) => console.log(`Tip sent! Tx: ${response.transactionReceipts[0].transactionHash}`)}
         >
           <TransactionButton
             text={
@@ -173,6 +178,8 @@ export default function RaftPage() {
     <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">
       <div className="w-full max-w-md mx-auto px-4 py-3">
         <header className="flex justify-between items-center mb-3 h-11">
+          <div>
+          </div>
           <div>
           </div>
         </header>
@@ -366,7 +373,7 @@ export default function RaftPage() {
               </div>
             )}
 
-          <div className="pt-2">{controls}</div>
+            <div className="pt-2">{controls}</div>
             
           </div>
         </main>
