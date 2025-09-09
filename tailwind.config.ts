@@ -11,6 +11,7 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        'farcaster-purple': '#8a63d2',
       },
       animation: {
         "fade-out": "1s fadeOut 3s ease-out forwards",
