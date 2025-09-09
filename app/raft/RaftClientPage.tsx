@@ -80,7 +80,7 @@ export default function RaftPage() {
       if (searcherUsername) {
         apiUrl += `&searcherUsername=${searcherUsername}`;
       }
-      
+
       const userResponse = await fetch(apiUrl);
 
       if (!userResponse.ok) {
@@ -98,9 +98,9 @@ export default function RaftPage() {
 
       const balanceResponse = await fetch(`/api/balL2?address=${address}`);
       if (!balanceResponse.ok) {
-         if (balanceResponse.status === 500) {
-            throw new Error("Hit rate limit. Please try again in a moment.");
-         }
+        if (balanceResponse.status === 500) {
+          throw new Error("Hit rate limit. Please try again in a moment.");
+        }
         throw new Error(`Failed to fetch token balance: ${balanceResponse.status}`);
       }
       const data = await balanceResponse.json();
@@ -110,7 +110,7 @@ export default function RaftPage() {
     } finally {
       setLoading(false);
     }
-  }, [username, searcherUsername]); 
+  }, [username, searcherUsername]);
 
   useEffect(() => {
     if (username) {
@@ -145,7 +145,7 @@ export default function RaftPage() {
     <div className="pt-2">
       {isConnected && recipientAddress && tipTransaction ? (
         <Transaction
-         // @ts-expect-error: tipTransaction is correctly typed
+          // @ts-expect-error: tipTransaction is correctly typed
           calls={tipTransaction}
           onSuccess={(response: TransactionResponse) => console.log(`Tip sent! Tx: ${response.transactionReceipts[0].transactionHash}`)}
         >
@@ -374,7 +374,7 @@ export default function RaftPage() {
             )}
 
             <div className="pt-2">{controls}</div>
-            
+
           </div>
         </main>
 
