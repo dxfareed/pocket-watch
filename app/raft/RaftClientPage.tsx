@@ -252,7 +252,7 @@ export default function RaftPage() {
                 <div className="bg-white rounded-lg shadow-lg p-4 border-2 border-gray-200" ref={receiptRef}>
                   <div className="font-mono">
                     <div className="text-center border-b-2 border-dashed border-gray-300 pb-3 mb-4">
-                      <div className="text-lg font-extrabold tracking-widest">@{searchedUsername}</div>
+                      <div className="text-lg font-extrabold tracking-widest">@{searchedUsername.toLowerCase()}</div>
                       <div className="text-xs text-gray-500 mt-1">{new Date().toLocaleString()}</div>
                     </div>
 
